@@ -48,6 +48,10 @@ export function createLead(store, payload) {
     throw new Error('name e email sao obrigatorios')
   }
 
+  if (store.leads.some((lead) => lead.email === email)) {
+    throw new Error('lead com este email ja existe')
+  }
+
   const score = calculateLeadScore(payload)
   const tier = leadTier(score)
 
@@ -63,6 +67,7 @@ export function createLead(store, payload) {
     score,
     tier,
     nextAction: recommendedAction(tier),
+    summary: '',
     createdAt: new Date().toISOString(),
   }
 
@@ -74,6 +79,32 @@ export function topLeads(store, limit = 5) {
   return [...store.leads]
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
+}
+
+function fallbackSummary(lead) {
+  return `Lead ${lead.name} (${lead.company || 'empresa nao informada'}) com score ${lead.score}/100 (${lead.tier}). Acao recomendada: ${lead.nextAction}`
+}
+
+export async function generateLeadSummary(lead, options = {}) {
+  const provider = options.provider
+  if (provider) {
+    const summary = await provider(lead)
+    if (summary) {
+      return String(summary)
+    }
+  }
+
+  return fallbackSummary(lead)
+}
+
+export async function summarizeLead(store, leadId, options = {}) {
+  const lead = store.leads.find((item) => item.id === leadId)
+  if (!lead) {
+    throw new Error('lead nao encontrado')
+  }
+
+  lead.summary = await generateLeadSummary(lead, options)
+  return lead
 }
 
 function sendJson(res, statusCode, payload) {
@@ -101,7 +132,9 @@ function readJsonBody(req) {
   })
 }
 
-export function createApp(store = createStore()) {
+export function createApp(store = createStore(), options = {}) {
+  const provider = options.provider
+
   return async function app(req, res) {
     const url = new URL(req.url || '/', 'http://localhost')
 
@@ -125,6 +158,13 @@ export function createApp(store = createStore()) {
 
       if (req.method === 'GET' && url.pathname === '/leads/top') {
         sendJson(res, 200, { leads: topLeads(store) })
+        return
+      }
+
+      const summarizeMatch = url.pathname.match(/^\/leads\/([^/]+)\/summarize$/)
+      if (req.method === 'POST' && summarizeMatch) {
+        const lead = await summarizeLead(store, summarizeMatch[1], { provider })
+        sendJson(res, 200, { lead })
         return
       }
 
