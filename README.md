@@ -1,34 +1,44 @@
-# ai-lead-qualifier
+﻿# ai-lead-qualifier
 
-Qualificador de leads com score automatico e recomendacao de acao.
+![CI](https://github.com/Beckerr11/ai-lead-qualifier/actions/workflows/ci.yml/badge.svg)
+
+Qualificador de leads com IA opcional.
 
 ## Objetivo
-Construir uma base profissional para portfolio full stack com foco em simplicidade, clareza e evolucao incremental.
+Este repositorio faz parte de uma trilha de portfolio profissional full stack, com foco em simplicidade, clareza e boas praticas.
 
 ## Stack
-Node.js + OpenAI API + PostgreSQL + React
+Node.js, lead scoring, provider OpenAI opcional
 
-## MVP (v0.1)
-- Cadastro de leads
-- Score inicial
-- Classificacao por prioridade
-- Resumo de lead
-
-## Estrutura inicial
-- docs/ROADMAP.md: plano de evolucao
-- src/: codigo fonte principal
-- 	ests/: testes iniciais
-- .github/workflows/ci.yml: pipeline minima
+## Funcionalidades implementadas
+- Score de lead por budget, urgencia e origem
+- Classificacao por tier (hot/warm/cold)
+- Resumo de lead com fallback local
+- Provider OpenAI configuravel via env
 
 ## Como executar
-Veja as instrucoes no docs/ROADMAP.md e no bloco de setup abaixo.
-`ash
-npm install
+~~~bash
+npm ci
 npm test
 npm run dev
-`
+~~~
+
+## Scripts uteis
+- npm run dev, npm test
+
+## Qualidade
+- CI em .github/workflows/ci.yml
+- Dependabot em .github/dependabot.yml
+- Testes locais obrigatorios antes de merge
+
+## Documentacao
+- [Roadmap](docs/ROADMAP.md)
+- [Checklist de producao](docs/PRODUCTION-CHECKLIST.md)
+- [Contribuicao](CONTRIBUTING.md)
+- [Seguranca](SECURITY.md)
+
 ## Status
 - [x] Scaffold inicial
-- [ ] MVP funcional
-- [ ] Deploy publico
-- [ ] Observabilidade e seguranca avancada
+- [x] Base funcional com testes
+- [ ] Deploy publico com observabilidade completa
+- [ ] Versao 1.0.0 com demo publica
