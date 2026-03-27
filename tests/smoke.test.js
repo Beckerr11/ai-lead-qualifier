@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createStore, createLead, topLeads, summarizeLead } from '../src/app.js'
+import { createOpenAILeadSummaryProvider } from '../src/integrations/openaiProvider.js'
 
 test('lead scoring ranks hot leads on top', () => {
   const store = createStore()
@@ -44,4 +45,16 @@ test('lead deduplication and summary generation', async () => {
 
   const summarized = await summarizeLead(store, lead.id)
   assert.ok(summarized.summary.includes('score'))
+})
+
+test('disabled OpenAI provider returns empty summary', async () => {
+  const provider = createOpenAILeadSummaryProvider()
+  const summary = await provider({
+    name: 'Lead Teste',
+    company: 'Empresa X',
+    score: 70,
+    tier: 'warm',
+    nextAction: 'Agendar reuniao',
+  })
+  assert.equal(summary, '')
 })
